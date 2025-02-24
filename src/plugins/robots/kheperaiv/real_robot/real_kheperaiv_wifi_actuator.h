@@ -12,6 +12,8 @@ class CRealKheperaIVWiFiActuator : public CCI_KheperaIVWiFiActuator,
                                    public CRealKheperaIVDevice {
 public:
 
+    CRealKheperaIVWiFiActuator(knet_dev_t* pt_dspic);
+
     virtual ~CRealKheperaIVWiFiActuator() {}
 
     virtual void Init(TConfigurationNode& t_node);

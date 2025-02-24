@@ -15,6 +15,8 @@ class CRealKheperaIVWiFiSensor : public CCI_KheperaIVWiFiSensor,
                                  public CRealKheperaIVDevice {
 public:
 
+    CRealKheperaIVWiFiSensor(knet_dev_t* pt_dspic);
+
     virtual ~CRealKheperaIVWiFiSensor() {}
 
     virtual void Init(TConfigurationNode& t_node);

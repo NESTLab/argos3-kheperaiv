@@ -8,6 +8,13 @@
 /****************************************/
 /****************************************/
 
+CRealKheperaIVWiFiActuator::CRealKheperaIVWiFiActuator(knet_dev_t* pt_dspic) :
+   CRealKheperaIVDevice(pt_dspic) {
+}
+
+/****************************************/
+/****************************************/
+
 void CRealKheperaIVWiFiActuator::Init(TConfigurationNode& t_node) {
     /* Parse XML configuration for multicast */
     std::string strMulticastAddr;
