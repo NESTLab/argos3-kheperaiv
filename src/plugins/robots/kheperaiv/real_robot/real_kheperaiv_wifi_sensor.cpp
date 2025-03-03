@@ -26,7 +26,7 @@ void CRealKheperaIVWiFiSensor::Init(TConfigurationNode& t_node) {
     /* Setup UDP socket */
     m_nMulticastSocket = ::socket(AF_INET, SOCK_DGRAM, 0);
     if (m_nMulticastSocket < 0) {
-        DEBUG_FUNCTION_EXIT;
+        // DEBUG_FUNCTION_EXIT;
         THROW_ARGOSEXCEPTION("socket() in wifi sensor failed: " << strerror(errno));
     }
     memset(&m_tMulticastAddr, 0, sizeof(m_tMulticastAddr));
@@ -36,8 +36,8 @@ void CRealKheperaIVWiFiSensor::Init(TConfigurationNode& t_node) {
     int nRes                         = bind(m_nMulticastSocket,
                                             reinterpret_cast<sockaddr*>(&m_tMulticastAddr),
                                             sizeof(m_tMulticastAddr));
-    DEBUG("Bound to IP address %s\n",
-          inet_ntoa(m_tMulticastAddr.sin_addr));
+    // DEBUG("Bound to IP address %s\n",
+    //       inet_ntoa(m_tMulticastAddr.sin_addr));
     if (nRes < 0) {
         DEBUG_FUNCTION_EXIT;
         THROW_ARGOSEXCEPTION("bind() in wifi sensor failed: " << strerror(errno));
@@ -50,7 +50,7 @@ void CRealKheperaIVWiFiSensor::Init(TConfigurationNode& t_node) {
                    IP_ADD_MEMBERSHIP,
                    &tIPMReq,
                    sizeof(tIPMReq)) < 0) {
-        DEBUG_FUNCTION_EXIT;
+        // DEBUG_FUNCTION_EXIT;
         THROW_ARGOSEXCEPTION("setsockopt() in wifi sensor failed: " << strerror(errno));
     }
     /* Launch listening thread */
@@ -59,19 +59,19 @@ void CRealKheperaIVWiFiSensor::Init(TConfigurationNode& t_node) {
                           &CRealKheperaIVWiFiSensor::StartListeningThread,
                           this);
     if (nRes < 0) {
-        DEBUG_FUNCTION_EXIT;
+        // DEBUG_FUNCTION_EXIT;
         THROW_ARGOSEXCEPTION("pthread_create() in wifi sensor failed: " << strerror(errno));
     }
     m_tListeningMutex = PTHREAD_MUTEX_INITIALIZER;
-    DEBUG("Listening thread started\n");
-    DEBUG_FUNCTION_EXIT;
+    // DEBUG("Listening thread started\n");
+    // DEBUG_FUNCTION_EXIT;
 }
 
 /****************************************/
 /****************************************/
 
 void CRealKheperaIVWiFiSensor::Destroy() {
-    DEBUG_FUNCTION_ENTER;
+    // DEBUG_FUNCTION_ENTER;
     /* Close the listening socket
      * This also forced recvfrom() to fail, and then a call to pthread_exit()
      * follows
@@ -80,7 +80,7 @@ void CRealKheperaIVWiFiSensor::Destroy() {
     /* Wait for listening thread to finish */
     pthread_cancel(m_tListeningThread);
     LOG << "WiFi Listening thread stopped" << std::endl;
-    DEBUG_FUNCTION_EXIT;
+    // DEBUG_FUNCTION_EXIT;
 }
 
 /****************************************/
@@ -97,19 +97,19 @@ void CRealKheperaIVWiFiSensor::GetMessages(std::vector<CCI_KheperaIVWiFiSensor::
 /****************************************/
 
 void CRealKheperaIVWiFiSensor::FlushMessages() {
-    DEBUG_FUNCTION_ENTER;
+    // DEBUG_FUNCTION_ENTER;
     pthread_mutex_lock(&m_tListeningMutex);
     m_vecMsgQueue.clear();
     pthread_mutex_unlock(&m_tListeningMutex);
-    DEBUG_FUNCTION_EXIT;
+    // DEBUG_FUNCTION_EXIT;
 }
 
 /****************************************/
 /****************************************/
 
 void* CRealKheperaIVWiFiSensor::ListeningThread() {
-    DEBUG_FUNCTION_ENTER;
-    DEBUG("WiFi Listening thread started\n");
+    // DEBUG_FUNCTION_ENTER;
+    // DEBUG("WiFi Listening thread started\n");
     /* Set up blocking listen with a timeout */
     struct timeval sTimeout;
     sTimeout.tv_sec  = 0;
@@ -125,9 +125,14 @@ void* CRealKheperaIVWiFiSensor::ListeningThread() {
             0);
         if (nRecvd < 0) {
             /* In case of error, it's fine to exit the thread */
-            DEBUG_FUNCTION_EXIT;
+            // DEBUG_FUNCTION_EXIT;
             pthread_exit(nullptr);
         } else if (nRecvd > 0) {
+            if (unPayloadSize > PAYLOAD_LIMIT)
+            {
+                LOG << "[INFO] Rejecting corrupted unPayloadSize = " << unPayloadSize << std::endl;
+                continue;
+            }
             /* Receive message payload */
             unsigned char* punBuffer = new unsigned char[unPayloadSize];
             nRecvd                   = ReceiveDataMultiCast(
@@ -140,13 +145,13 @@ void* CRealKheperaIVWiFiSensor::ListeningThread() {
                 pthread_mutex_lock(&m_tListeningMutex);
                 m_vecMsgQueue.push_back({inet_ntoa(reinterpret_cast<sockaddr_in*>(&tSenderAddr)->sin_addr),
                                          CByteArray(punBuffer, unPayloadSize)});
-                DEBUG("m_vecMsgQueue.size() = %zu\n", m_vecMsgQueue.size());
+                // DEBUG("m_vecMsgQueue.size() = %zu\n", m_vecMsgQueue.size());
                 pthread_mutex_unlock(&m_tListeningMutex);
             }
             delete[] punBuffer;
         }
     }
-    DEBUG_FUNCTION_EXIT;
+    // DEBUG_FUNCTION_EXIT;
     return nullptr;
 }
 
@@ -180,7 +185,7 @@ ssize_t CRealKheperaIVWiFiSensor::ReceiveDataMultiCast(unsigned char*   pt_buf,
                           pt_sender_addr,
                           &tSenderAddrLen);
         if (nRecvd < 0) {
-            DEBUG("recvfrom(): %s\n", strerror(errno));
+            // DEBUG("recvfrom(): %s\n", strerror(errno));
             return -1;
         } else {
             nTotRecvd += nRecvd;
