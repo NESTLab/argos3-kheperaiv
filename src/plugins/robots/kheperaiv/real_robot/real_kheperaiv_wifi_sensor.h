@@ -9,6 +9,8 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
+#define PAYLOAD_LIMIT 1000000 // 1 MB limit for the payloads; useful for detecting corrupted messages
+
 using namespace argos;
 
 class CRealKheperaIVWiFiSensor : public CCI_KheperaIVWiFiSensor,
