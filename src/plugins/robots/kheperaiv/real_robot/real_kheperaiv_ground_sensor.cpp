@@ -17,7 +17,7 @@ CRealKheperaIVGroundSensor::~CRealKheperaIVGroundSensor() {
 /****************************************/
 
 #define SETREADING(ARGOSIDX, KH4IDX)                                    \
-   m_tReadings[ARGOSIDX].Value = (GetBuffer()[KH4IDX*2] | GetBuffer()[KH4IDX*2+1] << 8) / 65536.0;
+   m_tReadings[ARGOSIDX].Value = (GetBuffer()[KH4IDX*2] | GetBuffer()[KH4IDX*2+1] << 8) / 1024.0;
 
 void CRealKheperaIVGroundSensor::Do(Real f_elapsed_time) {
    kh4_proximity_ir(GetBuffer(), GetDSPic());
